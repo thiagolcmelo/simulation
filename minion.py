@@ -1,6 +1,6 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from random import sample
+from random import random, sample
 from typing import Dict
 
 from asset import AssetType, ASSET_NUM, ASSET_TYPES
@@ -44,8 +44,9 @@ class Minion:
         parent1: Minion,
         parent2: Minion
     ) -> Dict[AssetType, float]:
+        randomness = (random() * 2 - 1) / 20  # a number between -0.05 and 0.05
         return {
-            at: (parent1[at] + parent2[at]) / 2.0
+            at: (parent1[at] + parent2[at]) / 2.0 + randomness
             for at in ASSET_TYPES
         }
 
