@@ -1,14 +1,8 @@
 import pytest
 
 from asset import Asset, ASSET_NUM, ASSET_TYPES
-from individual import (
-    HAPPINESS_UNIT,
-    MAX_AGE,
-    MAX_PREFERENCE,
-    MIN_PREFERENCE,
-    Individual,
-    RANDOMNESS_DELTA,
-)
+from constants import *
+from individual import Individual
 
 
 def assert_valid_individual(individual: Individual) -> None:
@@ -16,11 +10,11 @@ def assert_valid_individual(individual: Individual) -> None:
     assert individual.influence >= 0
     assert individual.happiness >= 0
     assert len(individual.preferences) == ASSET_NUM
-    assert 0 <= individual.age <= MAX_AGE
+    assert 0 <= individual.age <= INDIVIDUAL_MAX_AGE
 
     for at, p in individual.preferences.items():
         assert at in ASSET_TYPES
-        assert MIN_PREFERENCE <= p <= MAX_PREFERENCE
+        assert PREFERENCE_MIN_VALUE <= p <= PREFERENCE_MAX_VALUE
 
 
 def test_make_from_atoms():
@@ -45,7 +39,7 @@ def test_make_from_parents():
         p1 = preferences1[p]
         p2 = preferences2[p]
         p3 = preferences3[p]
-        assert p3 == pytest.approx((p1 + p2) / 2, abs=RANDOMNESS_DELTA)
+        assert p3 == pytest.approx((p1 + p2) / 2, abs=PREFERENCE_RANDOMNESS_DELTA)
 
 
 def test_get_individuals():
@@ -62,5 +56,5 @@ def test_grant_asset():
     individual.grant_asset(asset_)
     assert len(individual.assets) == 1
     assert individual.happiness == pytest.approx(
-        individual.preferences[asset_.asset_type] * HAPPINESS_UNIT
+        individual.preferences[asset_.asset_type] * INDIVIDUAL_HAPPINESS_UNIT
     )

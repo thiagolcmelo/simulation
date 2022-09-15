@@ -1,10 +1,10 @@
 from random import choices
-from string import ascii_lowercase
 from typing import List
 
+from constants import *
+
+
 DNA = List[str]
-DNA_BASES = ascii_lowercase
-DNA_SIZE = 26
 
 
 # Creates a new random DNA from bases with size
