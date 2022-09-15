@@ -1,12 +1,13 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from random import random, sample
-from typing import Dict
+from typing import Dict, List
 
 from asset import AssetType, ASSET_NUM, ASSET_TYPES
 from dna_helper import combine_dna, DNA, new_dna
 
 
+MAX_AGE = 100
 MAX_PREFERENCE = 0.9
 MIN_PREFERENCE = 0.1
 RANDOMNESS_DELTA = 0.05
@@ -40,6 +41,10 @@ class Minion:
             happiness=0,
             preferences=Minion._preferences_from_atoms(),
         )
+
+    @classmethod
+    def get_minions(cls, size: int) -> List[Minion]:
+        return [cls.make_from_atoms(id=i) for i in range(size)]
 
     @staticmethod
     def _preferences_from_parents(

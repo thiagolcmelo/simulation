@@ -16,7 +16,5 @@ class World:
         self.initial_individuals
         self.initial_populations = initial_populations
         self.initial_assets = initial_assets
-        self.individuals = [
-            Minion.make_from_atoms(id=i) for i in range(initial_individuals)
-        ]
+        self.individuals = Minion.get_minions(size=initial_individuals)
         self.assets = Asset.get_assets(size=initial_assets)
