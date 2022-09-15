@@ -52,3 +52,9 @@ class Asset:
     def get_assets(cls, size: int) -> List[Asset]:
         types = choices(ASSET_TYPES, k=size)
         return [cls(t) for t in types]
+
+    def __str__(self) -> str:
+        return f'<Asset: {self.asset_type}>'
+
+    def __repr__(self) -> str:
+        return f'<Asset: {self.asset_type}, {self.asset_nature}>'

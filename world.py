@@ -1,6 +1,6 @@
 from collections import Counter, defaultdict
 from dataclasses import dataclass, field
-from random import sample, shuffle, randint
+from random import sample, shuffle, randint, random
 from typing import List, Tuple
 
 from asset import Asset
@@ -39,18 +39,31 @@ class World:
         if self.time_is_passing:
             self._set_solutions(solutions=solutions)
         else:
-            self._collect_assets()
+            self.collect_assets()
             self.time_is_passing = True
         self._move_time()
         return self._get_conflicts()
 
     def _move_time(self) -> None:
-        self._collect_assets()
+        self.collect_assets()
         self._age_individuals()
         self._move_individuals()
 
-    def _collect_assets(self) -> None:
-        pass
+    def collect_assets(self) -> None:
+        for point, individuals in self.individuals_positions.items():
+            if len(individuals) == 1:
+                individual = individuals[0]
+                assets = self.assets_positions[point]
+                if len(assets) > 0:
+                    left_behind = []
+                    for asset in assets:
+                        preference = individual.preferences[asset.asset_type]
+                        if random() < preference:
+                            individual.assets.append(asset)
+                        else:
+                            left_behind.append(asset)
+                    self.assets_positions[point].clear()
+                    self.assets_positions[point].extend(left_behind)
 
     def _age_individuals(self) -> None:
         pass
