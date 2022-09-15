@@ -1,10 +1,18 @@
 from collections import Counter, defaultdict
+from dataclasses import dataclass, field
 from random import sample, shuffle, randint
 from typing import List, Tuple
 
 from asset import Asset
 from individual import Individual
 from world_helper import get_points_distributed, Point
+
+
+@dataclass
+class Conflict:
+    place: Point
+    individuals: List[Individual] = field(default_factory=lambda: [])
+    assets: List[Asset] = field(default_factory=lambda: [])
 
 
 class World:
@@ -23,8 +31,46 @@ class World:
         self.individuals_positions = defaultdict(list)
         self._distribute_individuals()
 
-        self.assets_positions = {}
+        self.assets_positions = defaultdict(list)
         self._distribute_assets()
+        self.time_is_passing = False
+
+    def solve_conflicts(self, solutions: List[Conflict] = None) -> List[Conflict]:
+        if self.time_is_passing:
+            self._set_solutions(solutions=solutions)
+        else:
+            self._collect_assets()
+            self.time_is_passing = True
+        self._move_time()
+        return self._get_conflicts()
+
+    def _move_time(self) -> None:
+        self._collect_assets()
+        self._age_individuals()
+        self._move_individuals()
+
+    def _collect_assets(self) -> None:
+        pass
+
+    def _age_individuals(self) -> None:
+        pass
+
+    def _move_individuals(self) -> None:
+        pass
+
+    def _set_solutions(self, solutions: List[Conflict]) -> None:
+        for solution in solutions:
+            self.individuals_positions[solution.place] = solution.individuals
+            self.assets_positions[solution.place] = solution.assets
+
+    def _get_conflicts(self) -> List[Conflict]:
+        conflicts = []
+        for point, individuals in self.individuals_positions.items():
+            if len(individuals) > 1:
+                conflicts.append(
+                    Conflict(point, individuals, self.assets_positions[point])
+                )
+        return conflicts
 
     def _distribute_individuals(self) -> None:
         points = get_points_distributed(
@@ -51,4 +97,4 @@ class World:
         points_counter = Counter(points)
         for point, num_assets in points_counter.items():
             assets = Asset.get_assets(size=num_assets)
-            self.assets_positions[point] = assets
+            self.assets_positions[point].extend(assets)
