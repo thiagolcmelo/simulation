@@ -1,3 +1,4 @@
+from collections import Counter
 from random import sample, shuffle, randint
 from typing import List, Tuple
 
@@ -18,12 +19,14 @@ class World:
         self.initial_individuals = initial_individuals
         self.initial_populations = initial_populations
         self.initial_assets = initial_assets
-        self.assets = Asset.get_assets(size=initial_assets)
+
         self.individuals = Minion.get_minions(size=initial_individuals)
         self._distribute_individuals()
 
+        self.assets_positions = {}
+        self._distribute_assets()
+
     def _distribute_individuals(self) -> None:
-        individuals_per_population = self.initial_individuals / self.initial_populations
         points = get_points_distributed(
             grid_size=self.size, num_points=self.initial_populations
         )
@@ -42,4 +45,10 @@ class World:
         return point
 
     def _distribute_assets(self) -> None:
-        self.assets_positions = {}
+        points = get_points_distributed(
+            grid_size=self.size, num_points=self.initial_assets, unique=False
+        )
+        points_counter = Counter(points)
+        for point, num_assets in points_counter.items():
+            assets = Asset.get_assets(size=num_assets)
+            self.assets_positions[point] = assets
