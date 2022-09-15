@@ -7,6 +7,11 @@ from asset import AssetType, ASSET_NUM, ASSET_TYPES
 from dna_helper import combine_dna, DNA, new_dna
 
 
+MAX_PREFERENCE = 0.9
+MIN_PREFERENCE = 0.1
+RANDOMNESS_DELTA = 0.05
+
+
 @dataclass
 class Minion:
     id: int
@@ -16,12 +21,8 @@ class Minion:
     preferences: Dict[AssetType, float]
     age: int = 0
 
-    def make_from_parents(
-        cls,
-        id: int,
-        parent1: Minion,
-        parent2: Minion
-    ) -> Minion:
+    @classmethod
+    def make_from_parents(cls, id: int, parent1: Minion, parent2: Minion) -> Minion:
         return cls(
             id=id,
             dna=combine_dna(parent1.dna, parent2.dna),
@@ -30,6 +31,7 @@ class Minion:
             preferences=Minion._preferences_from_parents(parent1, parent2),
         )
 
+    @classmethod
     def make_from_atoms(cls, id: int) -> Minion:
         return cls(
             id=id,
@@ -41,20 +43,17 @@ class Minion:
 
     @staticmethod
     def _preferences_from_parents(
-        parent1: Minion,
-        parent2: Minion
+        parent1: Minion, parent2: Minion
     ) -> Dict[AssetType, float]:
-        randomness = (random() * 2 - 1) / 20  # a number between -0.05 and 0.05
+        randomness = (random() * 2 - 1) * RANDOMNESS_DELTA
         return {
-            at: (parent1[at] + parent2[at]) / 2.0 + randomness
+            at: (parent1.preferences[at] + parent2.preferences[at]) / 2.0 + randomness
             for at in ASSET_TYPES
         }
 
     @staticmethod
     def _preferences_from_atoms() -> Dict[AssetType, float]:
-        max_preference = 0.9
-        min_preference = 0.1
-        step = (max_preference - min_preference) / (ASSET_NUM - 1)
-        preferences = [min_preference + i * step for i in range(ASSET_NUM)]
+        step = (MAX_PREFERENCE - MIN_PREFERENCE) / (ASSET_NUM - 1)
+        preferences = [MIN_PREFERENCE + i * step for i in range(ASSET_NUM)]
         random_types = sample(ASSET_TYPES, k=ASSET_NUM)
         return dict(zip(random_types, preferences))

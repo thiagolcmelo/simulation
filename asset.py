@@ -3,21 +3,21 @@ from typing import List
 
 
 class AssetType(Enum):
-    TYPE0 = 'TYPE0'
-    TYPE1 = 'TYPE1'
-    TYPE2 = 'TYPE2'
-    TYPE3 = 'TYPE3'
-    TYPE4 = 'TYPE4'
-    TYPE5 = 'TYPE5'
-    TYPE6 = 'TYPE6'
-    TYPE7 = 'TYPE7'
-    TYPE8 = 'TYPE8'
-    TYPE9 = 'TYPE9'
+    TYPE0 = "TYPE0"
+    TYPE1 = "TYPE1"
+    TYPE2 = "TYPE2"
+    TYPE3 = "TYPE3"
+    TYPE4 = "TYPE4"
+    TYPE5 = "TYPE5"
+    TYPE6 = "TYPE6"
+    TYPE7 = "TYPE7"
+    TYPE8 = "TYPE8"
+    TYPE9 = "TYPE9"
 
 
 class AssetNature(Enum):
-    GROWABLE = 'GROWABLE'
-    NON_GROWABLE = 'NON_GROWABLE'
+    GROWABLE = "GROWABLE"
+    NON_GROWABLE = "NON_GROWABLE"
 
 
 ASSET_TYPES = [
