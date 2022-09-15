@@ -13,8 +13,8 @@ class World:
         initial_assets: int = 1_000,
     ) -> None:
         self.size = size
-        self.initial_individuals
+        self.initial_individuals = initial_individuals
         self.initial_populations = initial_populations
         self.initial_assets = initial_assets
-        self.individuals = Minion.get_minions(size=initial_individuals)
         self.assets = Asset.get_assets(size=initial_assets)
+        self.individuals = Minion.get_minions(size=initial_individuals)
