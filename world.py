@@ -1,7 +1,9 @@
+from random import sample, shuffle, randint
 from typing import List, Tuple
 
 from asset import Asset
 from minion import Minion
+from world_helper import distribute_populations, Point
 
 
 class World:
@@ -18,3 +20,21 @@ class World:
         self.initial_assets = initial_assets
         self.assets = Asset.get_assets(size=initial_assets)
         self.individuals = Minion.get_minions(size=initial_individuals)
+        self._distribute_individuals()
+
+    def _distribute_individuals(self) -> None:
+        individuals_per_population = self.initial_individuals / self.initial_populations
+        points = distribute_populations(size=self.initial_populations)
+        ids = [i.id for i in self.individuals]
+        shuffle(ids)
+        self.individuals_positions = {}
+        for id_ in ids:
+            position = self._randomize_point(sample(points, l=1)[0])
+            self.individuals_positions[id_] = position
+
+    def _randomize_point(self, point: Point, units: int = 1) -> Point:
+        dx = randint(-units, units)
+        dy = randint(-units, units)
+        point.x = min(max(0, point.x + dx), self.size[0] - 1)
+        point.y = min(max(0, point.y + dy), self.size[1] - 1)
+        return point
