@@ -15,7 +15,7 @@ RANDOMNESS_DELTA = 0.05
 
 
 @dataclass
-class Minion:
+class Individual:
     id: int
     dna: DNA
     influence: int
@@ -25,32 +25,34 @@ class Minion:
     assets: List[Asset] = field(default_factory=lambda: [])
 
     @classmethod
-    def make_from_parents(cls, id: int, parent1: Minion, parent2: Minion) -> Minion:
+    def make_from_parents(
+        cls, id: int, parent1: Individual, parent2: Individual
+    ) -> Individual:
         return cls(
             id=id,
             dna=combine_dna(parent1.dna, parent2.dna),
             influence=0,
             happiness=0,
-            preferences=Minion._preferences_from_parents(parent1, parent2),
+            preferences=Individual._preferences_from_parents(parent1, parent2),
         )
 
     @classmethod
-    def make_from_atoms(cls, id: int) -> Minion:
+    def make_from_atoms(cls, id: int) -> Individual:
         return cls(
             id=id,
             dna=new_dna(),
             influence=0,
             happiness=0,
-            preferences=Minion._preferences_from_atoms(),
+            preferences=Individual._preferences_from_atoms(),
         )
 
     @classmethod
-    def get_minions(cls, size: int) -> List[Minion]:
+    def get_individuals(cls, size: int) -> List[Individual]:
         return [cls.make_from_atoms(id=i) for i in range(size)]
 
     @staticmethod
     def _preferences_from_parents(
-        parent1: Minion, parent2: Minion
+        parent1: Individual, parent2: Individual
     ) -> Dict[AssetType, float]:
         randomness = (random() * 2 - 1) * RANDOMNESS_DELTA
         preferences = {
