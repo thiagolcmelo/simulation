@@ -21,6 +21,7 @@ class World:
         self.initial_assets = initial_assets
 
         self.individuals = Minion.get_minions(size=initial_individuals)
+        self.individuals_positions = {}
         self._distribute_individuals()
 
         self.assets_positions = {}
@@ -32,10 +33,10 @@ class World:
         )
         ids = [i.id for i in self.individuals]
         shuffle(ids)
-        self.individuals_positions = {}
         for id_ in ids:
-            position = self._randomize_point(sample(points, l=1)[0])
-            self.individuals_positions[id_] = position
+            position = sample(points, k=1)[0]
+            position = Point(position.x, position.y)
+            self.individuals_positions[id_] = self._randomize_point(position)
 
     def _randomize_point(self, point: Point, units: int = 1) -> Point:
         dx = randint(-units, units)
