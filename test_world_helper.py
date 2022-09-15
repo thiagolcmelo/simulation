@@ -1,10 +1,10 @@
 import pytest
 
-from world_helper import distribute_populations
+from world_helper import get_points_distributed
 
 
 def test_distribute_populations():
-    points = distribute_populations(size=(100, 100), populations=10)
+    points = get_points_distributed(grid_size=(100, 100), num_points=10)
     assert len(points) == 10
     for p in points:
         assert 0 <= p.x < 100

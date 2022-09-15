@@ -9,11 +9,11 @@ class Point:
     y: int
 
 
-def distribute_populations(size: Tuple[int, int], populations: int) -> List[Point]:
+def get_points_distributed(grid_size: Tuple[int, int], num_points: int) -> List[Point]:
     points = []
-    for i in range(populations):
-        point = Point(randint(0, size[0] - 1), randint(0, size[1] - 1))
+    for i in range(num_points):
+        point = Point(randint(0, grid_size[0] - 1), randint(0, grid_size[1] - 1))
         while point in points:
-            point = Point(randint(0, size[0] - 1), randint(0, size[1] - 1))
+            point = Point(randint(0, grid_size[0] - 1), randint(0, grid_size[1] - 1))
         points.append(point)
     return points

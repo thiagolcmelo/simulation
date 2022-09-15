@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from asset import Asset
 from minion import Minion
-from world_helper import distribute_populations, Point
+from world_helper import get_points_distributed, Point
 
 
 class World:
@@ -24,7 +24,9 @@ class World:
 
     def _distribute_individuals(self) -> None:
         individuals_per_population = self.initial_individuals / self.initial_populations
-        points = distribute_populations(size=self.initial_populations)
+        points = get_points_distributed(
+            grid_size=self.size, num_points=self.initial_populations
+        )
         ids = [i.id for i in self.individuals]
         shuffle(ids)
         self.individuals_positions = {}
@@ -38,3 +40,6 @@ class World:
         point.x = min(max(0, point.x + dx), self.size[0] - 1)
         point.y = min(max(0, point.y + dy), self.size[1] - 1)
         return point
+
+    def _distribute_assets(self) -> None:
+        self.assets_positions = {}

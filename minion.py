@@ -53,10 +53,15 @@ class Minion:
         parent1: Minion, parent2: Minion
     ) -> Dict[AssetType, float]:
         randomness = (random() * 2 - 1) * RANDOMNESS_DELTA
-        return {
-            at: (parent1.preferences[at] + parent2.preferences[at]) / 2.0 + randomness
+        preferences = {
+            at: (parent1.preferences[at] + parent2.preferences[at]) / 2.0
             for at in ASSET_TYPES
         }
+        for at in ASSET_TYPES:
+            preferences[at] = min(
+                MAX_PREFERENCE, max(MIN_PREFERENCE, preferences[at] + randomness)
+            )
+        return preferences
 
     @staticmethod
     def _preferences_from_atoms() -> Dict[AssetType, float]:
