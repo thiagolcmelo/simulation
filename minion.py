@@ -1,12 +1,13 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from random import random, sample
 from typing import Dict, List
 
-from asset import AssetType, ASSET_NUM, ASSET_TYPES
+from asset import Asset, AssetType, ASSET_NUM, ASSET_TYPES
 from dna_helper import combine_dna, DNA, new_dna
 
 
+HAPPINESS_UNIT = 10
 MAX_AGE = 100
 MAX_PREFERENCE = 0.9
 MIN_PREFERENCE = 0.1
@@ -21,6 +22,7 @@ class Minion:
     happiness: int
     preferences: Dict[AssetType, float]
     age: int = 0
+    assets: List[Asset] = field(default_factory=lambda: [])
 
     @classmethod
     def make_from_parents(cls, id: int, parent1: Minion, parent2: Minion) -> Minion:
@@ -62,3 +64,7 @@ class Minion:
         preferences = [MIN_PREFERENCE + i * step for i in range(ASSET_NUM)]
         random_types = sample(ASSET_TYPES, k=ASSET_NUM)
         return dict(zip(random_types, preferences))
+
+    def grant_asset(self, asset: Asset) -> None:
+        self.assets.append(asset)
+        self.happiness += self.preferences[asset.asset_type] * HAPPINESS_UNIT

@@ -1,7 +1,14 @@
 import pytest
 
-from asset import ASSET_NUM, ASSET_TYPES
-from minion import MAX_AGE, MAX_PREFERENCE, MIN_PREFERENCE, Minion, RANDOMNESS_DELTA
+from asset import Asset, ASSET_NUM, ASSET_TYPES
+from minion import (
+    HAPPINESS_UNIT,
+    MAX_AGE,
+    MAX_PREFERENCE,
+    MIN_PREFERENCE,
+    Minion,
+    RANDOMNESS_DELTA,
+)
 
 
 def assert_valid_minion(minion: Minion) -> None:
@@ -46,3 +53,14 @@ def test_get_minions():
     assert len(minions) == 20
     for m in minions:
         assert_valid_minion(m)
+
+
+def test_grant_asset():
+    minion = Minion.make_from_atoms(id=1)
+    assets = Asset.get_assets(size=1)
+    asset_ = assets[0]
+    minion.grant_asset(asset_)
+    assert len(minion.assets) == 1
+    assert minion.happiness == pytest.approx(
+        minion.preferences[asset_.asset_type] * HAPPINESS_UNIT
+    )
