@@ -9,7 +9,7 @@ DNA_SIZE = 26
 
 # Creates a new random DNA from bases with size
 def new_dna(bases: str = DNA_BASES, size: int = DNA_SIZE) -> DNA:
-    return choices(DNA_BASES, k=size)
+    return choices(bases, k=size)
 
 
 # Creates a new DNA by sampling elements from the two other DNA sequences
