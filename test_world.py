@@ -14,4 +14,4 @@ def test_world_initialize_individuals():
     world = World(
         size=(10, 10), initial_assets=20, initial_individuals=10, initial_populations=3
     )
-    assert len(world.individuals) == 10
+    assert sum(map(len, world.individuals_positions.values())) == 10

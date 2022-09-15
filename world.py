@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, defaultdict
 from random import sample, shuffle, randint
 from typing import List, Tuple
 
@@ -20,8 +20,7 @@ class World:
         self.initial_populations = initial_populations
         self.initial_assets = initial_assets
 
-        self.individuals = Minion.get_minions(size=initial_individuals)
-        self.individuals_positions = {}
+        self.individuals_positions = defaultdict(list)
         self._distribute_individuals()
 
         self.assets_positions = {}
@@ -31,12 +30,12 @@ class World:
         points = get_points_distributed(
             grid_size=self.size, num_points=self.initial_populations
         )
-        ids = [i.id for i in self.individuals]
-        shuffle(ids)
-        for id_ in ids:
+        individuals = Minion.get_minions(size=self.initial_individuals)
+        for individual in individuals:
             position = sample(points, k=1)[0]
             position = Point(position.x, position.y)
-            self.individuals_positions[id_] = self._randomize_point(position)
+            position = self._randomize_point(position)
+            self.individuals_positions[position].append(individual)
 
     def _randomize_point(self, point: Point, units: int = 1) -> Point:
         dx = randint(-units, units)
