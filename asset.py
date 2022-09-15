@@ -1,4 +1,6 @@
+from __future__ import annotations
 from enum import Enum
+from random import choices
 from typing import List
 
 
@@ -35,10 +37,18 @@ ASSET_TYPES = [
 ASSET_NUM = len(ASSET_TYPES)
 
 
+def asset_type_nature(asset_type: AssetType) -> AssetNature:
+    if asset_type in (AssetType.TYPE0, AssetType.TYPE1, AssetType.TYPE2):
+        return AssetNature.GROWABLE
+    return AssetNature.NON_GROWABLE
+
+
 class Asset:
     def __init__(self, asset_type: AssetType) -> None:
         self.asset_type = asset_type
-        if self.asset_type in ASSET_TYPES[:4]:
-            self.asset_nature = AssetNature.GROWABLE
-        else:
-            self.asset_nature = AssetNature.NON_GROWABLE
+        self.asset_nature = asset_type_nature(asset_type)
+
+    @classmethod
+    def get_assets(cls, size: int) -> List[Asset]:
+        types = choices(ASSET_TYPES, k=size)
+        return [cls(t) for t in types]
