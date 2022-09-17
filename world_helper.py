@@ -1,18 +1,11 @@
-from dataclasses import dataclass
-from random import randint
+from dataclasses import dataclass, field
+from random import randint, random, shuffle
 from typing import List, Tuple
 
-
-@dataclass
-class Point:
-    x: int
-    y: int
-
-    def __hash__(self):
-        return hash((self.x, self.y))
-
-    def __str__(self) -> str:
-        return f"(x={self.x}, y={self.y})"
+from conflict import Conflict
+from constants import *
+from individual import Individual
+from point import Point
 
 
 def get_points_distributed(
@@ -32,3 +25,39 @@ def get_points_distributed(
                 )
         points.append(point)
     return points
+
+
+def take(giver: Individual, receiver: Individual) -> None:
+    preferred_receiver = receiver.preferred_asset_type
+    if giver.has_asset_type(preferred_receiver):
+        receiver.grant_asset(giver.revoke(preferred_receiver))
+
+
+def solve_duel(left: Individual, right: Individual) -> None:
+    if left.influence < right.influence:
+        take(left, right)
+    elif left.influence > right.influence:
+        take(right, left)
+
+
+def solve_naturally(conflict: Conflict) -> Conflict:
+    individuals = sorted(conflict.individuals, key=lambda i: i.influence, reverse=True)
+    for individual in individuals:
+        conflict.assets = individual.collect_assets(conflict.assets)
+
+    final_individuals = []
+    shuffle(individuals)
+    for left, right in zip(individuals[::2], individuals[1::2]):
+        if random() < INDIVIDUAL_REPRODUCTION_PROBABILITY:
+            final_individuals.extend(left.reproduce_with(right))
+        elif random() < INDIVIDUAL_ASSASSINATION_PROBABILITY:
+            final_individuals.extend(left.fight(right))
+        else:
+            solve_duel(left, right)
+            final_individuals.extend([left, right])
+    conflict.individuals = final_individuals
+    return conflict
+
+
+def natural_solver(conflicts: List[Conflict]) -> List[Conflict]:
+    return [solve_naturally(c) for c in conflicts]

@@ -38,9 +38,18 @@ ASSET_NUM = len(ASSET_TYPES)
 
 
 def asset_type_nature(asset_type: AssetType) -> AssetNature:
-    if asset_type in (AssetType.TYPE0, AssetType.TYPE1, AssetType.TYPE2):
+    if asset_type in (
+        AssetType.TYPE0,
+        AssetType.TYPE1,
+        AssetType.TYPE2,
+        AssetType.TYPE3,
+    ):
         return AssetNature.GROWABLE
     return AssetNature.NON_GROWABLE
+
+
+def is_asset_edible(asset_type: AssetType) -> bool:
+    return asset_type in (AssetType.TYPE0, AssetType.TYPE1)
 
 
 class Asset:
@@ -53,8 +62,19 @@ class Asset:
         types = choices(ASSET_TYPES, k=size)
         return [cls(t) for t in types]
 
+    @property
+    def is_edible(self) -> bool:
+        return is_asset_edible(self.asset_type)
+
+    @property
+    def is_growable(self) -> bool:
+        return self.asset_nature == AssetNature.GROWABLE
+
     def __str__(self) -> str:
-        return f'<Asset: {self.asset_type}>'
+        return f"<Asset: {self.asset_type.name}>"
 
     def __repr__(self) -> str:
-        return f'<Asset: {self.asset_type}, {self.asset_nature}>'
+        return f"<Asset: {self.asset_type.name}, {self.asset_nature.name}>"
+
+    def __hash__(self) -> int:
+        return hash((str(self.asset_type.name), str(self.asset_nature.name)))

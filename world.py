@@ -1,18 +1,19 @@
 from collections import Counter, defaultdict
-from dataclasses import dataclass, field
-from random import sample, shuffle, randint, random
-from typing import List, Tuple
+from itertools import repeat
+from random import sample, randint, random
+from secrets import choice
+from typing import Dict, List, Tuple
 
 from asset import Asset
+from asset_site import AssetSite
+from conflict import Conflict
+from constants import (
+    ASSET_REPRODUCTION_PROBABILITY,
+    ASSET_MAX_FOR_TYPE_IN_POINT,
+)
 from individual import Individual
-from world_helper import get_points_distributed, Point
-
-
-@dataclass
-class Conflict:
-    place: Point
-    individuals: List[Individual] = field(default_factory=lambda: [])
-    assets: List[Asset] = field(default_factory=lambda: [])
+from point import Point
+from world_helper import get_points_distributed
 
 
 class World:
@@ -31,59 +32,130 @@ class World:
         self.individuals_positions = defaultdict(list)
         self._distribute_individuals()
 
-        self.assets_positions = defaultdict(list)
+        self.site_positions = defaultdict(AssetSite)
         self._distribute_assets()
         self.time_is_passing = False
 
-    def solve_conflicts(self, solutions: List[Conflict] = None) -> List[Conflict]:
-        if self.time_is_passing:
-            self._set_solutions(solutions=solutions)
+    @property
+    def indicators(self) -> Dict[str, float]:
+        all_individuals = self.get_all_individuals()
+        total_population = len(all_individuals)
+        if total_population == 0:
+            avg_happines = 0
+            # avg_assets = 0
         else:
-            self.collect_assets()
-            self.time_is_passing = True
-        self._move_time()
-        return self._get_conflicts()
+            avg_happines = (
+                sum([i.happiness for i in all_individuals]) / total_population
+            )
+        return {
+            "total_population": total_population,
+            "avg_happines": avg_happines,
+        }
 
-    def _move_time(self) -> None:
-        self.collect_assets()
-        self._age_individuals()
-        self._move_individuals()
-
-    def collect_assets(self) -> None:
-        for point, individuals in self.individuals_positions.items():
-            if len(individuals) == 1:
-                individual = individuals[0]
-                assets = self.assets_positions[point]
-                if len(assets) > 0:
-                    left_behind = []
-                    for asset in assets:
-                        preference = individual.preferences[asset.asset_type]
-                        if random() < preference:
-                            individual.assets.append(asset)
-                        else:
-                            left_behind.append(asset)
-                    self.assets_positions[point].clear()
-                    self.assets_positions[point].extend(left_behind)
-
-    def _age_individuals(self) -> None:
-        pass
-
-    def _move_individuals(self) -> None:
-        pass
-
-    def _set_solutions(self, solutions: List[Conflict]) -> None:
-        for solution in solutions:
-            self.individuals_positions[solution.place] = solution.individuals
-            self.assets_positions[solution.place] = solution.assets
-
-    def _get_conflicts(self) -> List[Conflict]:
+    def get_conflicts(self) -> List[Conflict]:
         conflicts = []
         for point, individuals in self.individuals_positions.items():
             if len(individuals) > 1:
                 conflicts.append(
-                    Conflict(point, individuals, self.assets_positions[point])
+                    Conflict(point, individuals, self.site_positions[point])
                 )
         return conflicts
+
+    def solve_conflicts(self, solutions: List[Conflict] = None) -> None:
+        for solution in solutions:
+            self.individuals_positions[solution.place] = solution.individuals
+            self.site_positions[solution.place] = solution.assets
+
+    def move_time(self) -> None:
+        self._collect_assets()
+        self._regenerate_assets()
+        self._age_individuals()
+        self._update_influences()
+        self._move_individuals()
+
+    def get_individuals_not_competing(self) -> List[Tuple[Point, Individual]]:
+        free_individuals = []
+        for point, individuals in self.individuals_positions.items():
+            if len(individuals) == 1:
+                free_individuals.append((point, individuals[0]))
+        return free_individuals
+
+    def get_all_individuals(self) -> List[Individual]:
+        all_individuals = []
+        for point in self.individuals_positions:
+            all_individuals.extend(self.individuals_positions[point])
+        return all_individuals
+
+    def get_assets_free_and_growable(self) -> List[Tuple[Point, Asset]]:
+        eligible_assets = []
+        for point, assets in self.site_positions.items():
+            if len(self.individuals_positions[point]) == 0:
+                eligible_assets.extend(
+                    zip(repeat(point), assets.edible + assets.growable)
+                )
+        return eligible_assets
+
+    def is_valid_point(self, point: Point) -> bool:
+        return 0 <= point.x < self.size[0] and 0 <= point.y < self.size[1]
+
+    def get_random_neighboor(self, point: Point) -> Point:
+        options = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        while True:
+            dx, dy = choice(options)
+            neighboor = Point(point.x + dx, point.y + dy)
+            if self.is_valid_point(neighboor):
+                return neighboor
+
+    def _collect_assets(self) -> None:
+        not_competing = self.get_individuals_not_competing()
+        for point, individual in not_competing:
+            self.site_positions[point] = individual.collect_assets(
+                self.site_positions[point]
+            )
+
+    def _regenerate_assets(self) -> None:
+        assets = self.get_assets_free_and_growable()
+        for point, asset in assets:
+            total_of_kind_in_point = self.site_positions[point].total_of_type(
+                asset.asset_type
+            )
+            if (
+                total_of_kind_in_point <= ASSET_MAX_FOR_TYPE_IN_POINT
+                and random() < ASSET_REPRODUCTION_PROBABILITY
+            ):
+                neighbor = self.get_random_neighboor(point)
+                self.site_positions[neighbor].append(Asset(asset.asset_type))
+
+    def _age_individuals(self) -> None:
+        for point in self.individuals_positions:
+            individuals = self.individuals_positions[point]
+            alive = []
+            for individual in individuals:
+                is_alive = individual.get_old(1)
+                if is_alive:
+                    alive.append(individual)
+                else:
+                    self.site_positions[point].extend(individual.assets)
+            self.individuals_positions[point] = alive
+
+    def _update_influences(self) -> None:
+        all_individuals = self.get_all_individuals()
+        all_bases = Individual.avg_dna_counts(all_individuals)
+        for individual in all_individuals:
+            distance = individual.dna_distance(all_bases)
+            if distance > 0:
+                individual.influence = 1.0 / distance
+            else:
+                individual.influence = 1.0
+
+    def _move_individuals(self) -> None:
+        new_positions = defaultdict(list)
+        for point in self.individuals_positions:
+            individuals = self.individuals_positions[point]
+            for individual in individuals:
+                neighboor = self.get_random_neighboor(point)
+                new_positions[neighboor].append(individual)
+        self.individuals_positions = new_positions
 
     def _distribute_individuals(self) -> None:
         points = get_points_distributed(
@@ -110,4 +182,4 @@ class World:
         points_counter = Counter(points)
         for point, num_assets in points_counter.items():
             assets = Asset.get_assets(size=num_assets)
-            self.assets_positions[point].extend(assets)
+            self.site_positions[point].extend(assets)

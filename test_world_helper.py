@@ -1,6 +1,8 @@
 import pytest
 
-from world_helper import get_points_distributed
+from asset import Asset
+from individual import Individual
+from world_helper import get_points_distributed, take
 
 
 def test_distribute_populations():
@@ -23,10 +25,21 @@ def test_distribute_populations_not_unique():
 
 
 def test_distribute_populations_impossible_raises():
-    try:
-        points = get_points_distributed(grid_size=(3, 3), num_points=10, unique=True)
-        assert False, "Expected RuntimeError"
-    except RuntimeError:
-        pass
-    except Exception as err:
-        assert False, "Expected RuntimeError"
+    with pytest.raises(RuntimeError):
+        get_points_distributed(grid_size=(3, 3), num_points=10, unique=True)
+
+
+def test_take():
+    individual1, individual2 = Individual.get_individuals(2)
+    asset = Asset(individual2.preferred_asset_type)
+    individual1.grant_asset(asset)
+
+    assert asset in individual1.assets
+    assert len(individual1.assets) == 1
+    assert len(individual2.assets) == 0
+
+    take(individual1, individual2)
+
+    assert asset in individual2.assets
+    assert len(individual1.assets) == 0
+    assert len(individual2.assets) == 1

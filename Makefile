@@ -2,5 +2,6 @@
 
 test:
 	black .
-	pytest
+	coverage run -m pytest
+	coverage report -m
 .PHONY:test
