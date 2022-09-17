@@ -19,6 +19,12 @@ def test_distribute_populations_unique():
     assert len(set(map(lambda p: f"{p.x}-{p.y}", points))) == 10
 
 
+def test_distribute_populations_unique_full():
+    for _ in range(5):
+        points = get_points_distributed(grid_size=(2, 2), num_points=4, unique=True)
+        assert len(set(map(lambda p: f"{p.x}-{p.y}", points))) == 4
+
+
 def test_distribute_populations_not_unique():
     points = get_points_distributed(grid_size=(3, 3), num_points=10, unique=False)
     assert len(set(map(lambda p: f"{p.x}-{p.y}", points))) < 10
