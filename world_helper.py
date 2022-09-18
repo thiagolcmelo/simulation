@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from random import randint, random, shuffle
 from typing import List, Tuple
+from asset_site import AssetSite
 
 from conflict import Conflict
 from constants import *
@@ -40,14 +41,18 @@ def solve_duel(left: Individual, right: Individual) -> None:
         take(right, left)
 
 
-def solve_naturally(conflict: Conflict) -> Conflict:
-    individuals = sorted(conflict.individuals, key=lambda i: i.influence, reverse=True)
+def harvest_by_influence(individuals: List[Individual], assets: AssetSite) -> AssetSite:
+    individuals = sorted(individuals, key=lambda i: i.influence, reverse=True)
     for individual in individuals:
-        conflict.assets = individual.collect_assets(conflict.assets)
-
-    final_individuals = []
+        assets = individual.collect_assets(assets)
     shuffle(individuals)
-    for left, right in zip(individuals[::2], individuals[1::2]):
+    return assets
+
+
+def solve_naturally(conflict: Conflict) -> Conflict:
+    conflict.assets = harvest_by_influence(conflict.individuals, conflict.assets)
+    final_individuals = []
+    for left, right in zip(conflict.individuals[::2], conflict.individuals[1::2]):
         if random() < INDIVIDUAL_REPRODUCTION_PROBABILITY:
             final_individuals.extend(left.reproduce_with(right))
         elif random() < INDIVIDUAL_ASSASSINATION_PROBABILITY:
