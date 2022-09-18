@@ -16,7 +16,7 @@ def get_points_distributed(
             f"cannot uniquely place {num_points} in grid {grid_size[0]}x{grid_size[1]}"
         )
     points = []
-    for i in range(num_points):
+    for _ in range(num_points):
         point = Point(randint(0, grid_size[0] - 1), randint(0, grid_size[1] - 1))
         if unique:
             while point in points:

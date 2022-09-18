@@ -23,11 +23,12 @@ class Individual:
     def preferred_asset_type(self) -> AssetType:
         return sorted(self.preferences.items(), key=lambda p: p[1], reverse=True)[0][0]
 
-    def get_preference_for_asset_type(self, asset_type: AssetType) -> float:
-        return self.preferences[asset_type]
-
-    def has_asset_type(self, asset_type: AssetType) -> bool:
-        return any([a.asset_type == asset_type for a in self.assets])
+    @property
+    def happiness(self) -> float:
+        return (
+            sum([self.preferences[a.asset_type] for a in self.assets])
+            * INDIVIDUAL_HAPPINESS_UNIT
+        )
 
     @classmethod
     def make_from_parents(cls, parent1: Individual, parent2: Individual) -> Individual:
@@ -48,6 +49,16 @@ class Individual:
     @classmethod
     def get_individuals(cls, size: int) -> List[Individual]:
         return [cls.make_from_atoms() for _ in range(size)]
+
+    @staticmethod
+    def avg_dna_counts(population: List[Individual]) -> Counter:
+        all_bases = Counter()
+        total_individuals = len(population)
+        for individual in population:
+            all_bases.update(individual.dna)
+        for b in all_bases:
+            all_bases[b] /= total_individuals
+        return all_bases
 
     @staticmethod
     def _preferences_from_parents(
@@ -72,6 +83,12 @@ class Individual:
         random_types = sample(ASSET_TYPES, k=ASSET_NUM)
         return dict(zip(random_types, preferences))
 
+    def get_preference_for_asset_type(self, asset_type: AssetType) -> float:
+        return self.preferences[asset_type]
+
+    def has_asset_type(self, asset_type: AssetType) -> bool:
+        return any([a.asset_type == asset_type for a in self.assets])
+
     def grant_asset(self, asset: Asset) -> None:
         self.assets.append(asset)
 
@@ -93,13 +110,6 @@ class Individual:
         hl = int(l / 2)
         heritage, self.assets = self.assets[:hl], self.assets[hl:]
         return heritage
-
-    @property
-    def happiness(self) -> float:
-        return (
-            sum([self.preferences[a.asset_type] for a in self.assets])
-            * INDIVIDUAL_HAPPINESS_UNIT
-        )
 
     def collect_assets(self, assets: AssetSite) -> AssetSite:
         left_behind = AssetSite()
@@ -132,24 +142,6 @@ class Individual:
             return False
         return True
 
-    def __hash__(self) -> int:
-        dna = "-".join(self.dna)
-        influence = str(self.influence)
-        preferences = "-".join(map(str, preferences))
-        age = str(self.age)
-        assets = tuple(self.assets)
-        return hash(dna, influence, preferences, age, assets)
-
-    @staticmethod
-    def avg_dna_counts(population: List[Individual]) -> Counter:
-        all_bases = Counter()
-        total_individuals = len(population)
-        for individual in population:
-            all_bases.update(individual.dna)
-        for b in all_bases:
-            all_bases[b] /= total_individuals
-        return all_bases
-
     def dna_distance(self, avg_dna: Counter) -> float:
         dna = Counter(self.dna)
         return sum([(avg - dna[base]) ** 2 for base, avg in avg_dna.items()])
@@ -169,3 +161,11 @@ class Individual:
         child.inherit(self)
         child.inherit(other)
         return [self, child, other]
+
+    def __hash__(self) -> int:
+        dna = "-".join(self.dna)
+        influence = str(self.influence)
+        preferences = "-".join(map(str, self.preferences.items()))
+        age = str(self.age)
+        assets = tuple(self.assets)
+        return hash((dna, influence, preferences, age, assets))
