@@ -5,7 +5,7 @@ from asset import Asset, AssetType
 from asset_site import AssetSite
 from conflict import Conflict
 from individual import Individual
-from point import Point
+from src.point import Point
 from world_helper import (
     get_points_distributed,
     harvest_by_influence,
