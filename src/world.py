@@ -99,9 +99,7 @@ class World:
         eligible_assets = []
         for point, assets in self.site_positions.items():
             if len(self.individuals_positions[point]) == 0:
-                eligible_assets.extend(
-                    zip(repeat(point), assets.edible + assets.growable)
-                )
+                eligible_assets.extend(zip(repeat(point), assets.get_growable_assets()))
         return eligible_assets
 
     def is_valid_point(self, point: Point) -> bool:

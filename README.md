@@ -69,4 +69,4 @@ The idea is to improve the world over time. This is just a pessimistic view of a
 
 Some characteristics probably seem controvertial, but it tries to capture some evil aspects of the world.
 
-The first part of the code that requires urgent improvement is the one that represents assets and types of assets.
+The application is built almost entirely using the standard library. The next step is to vectorize most of the operations.
