@@ -1,7 +1,7 @@
 from unittest.mock import PropertyMock, patch
 import pytest
 
-from asset import Asset, AssetNature, AssetType
+from asset import Asset, AssetType
 from asset_site import AssetSite
 from conflict import Conflict
 from constants import ASSET_MAX_FOR_TYPE_IN_POINT, INDIVIDUAL_MAX_AGE
@@ -51,21 +51,23 @@ def test_get_assets_free_and_growable():
     world.individuals_positions[point1].append(individuals[0])
     # 1 free, 0 growable
     point2 = Point(4, 4)
-    world.site_positions[point2].append(Asset(AssetType.TYPE4))
+    world.site_positions[point2].append(Asset(AssetType.NON_GROWABLE))
     # 0 free, 1 growable
     point3 = Point(5, 6)
     world.individuals_positions[point3].append(individuals[1])
-    world.site_positions[point3].append(Asset(AssetType.TYPE0))
+    world.site_positions[point3].append(Asset(AssetType.GROWABLE))
     # 1 free, 1 growable
     point4 = Point(6, 6)
-    world.site_positions[point4].append(Asset(AssetType.TYPE1))
+    world.site_positions[point4].append(Asset(AssetType.GROWABLE))
+    # also 1 free, 1 growable
+    point5 = Point(7, 7)
+    world.site_positions[point5].append(Asset(AssetType.EDIBLE))
 
     free_and_growable = world.get_assets_free_and_growable()
-    assert len(free_and_growable) == 1
-    point, asset = free_and_growable[0]
-    assert point == point4
-    assert asset.asset_type == AssetType.TYPE1
-    assert asset.asset_nature == AssetNature.GROWABLE
+    assert len(free_and_growable) == 2
+    for point, asset in free_and_growable:
+        assert point in (point4, point5)
+        assert asset.asset_type in (AssetType.EDIBLE, AssetType.GROWABLE)
 
 
 @pytest.mark.parametrize(
@@ -226,7 +228,7 @@ def test_regenerate_assets_success(mock_random_neighboor, random_mock):
         size=(10, 10), initial_assets=0, initial_individuals=0, initial_populations=0
     )
     site = AssetSite()
-    site.append(Asset(AssetType.TYPE0))
+    site.append(Asset(AssetType.EDIBLE))
     world.site_positions[point1] = site
     world._regenerate_assets()
     assert len(world.site_positions[point2]) == 1
@@ -245,7 +247,7 @@ def test_regenerate_assets_fail(mock_random_neighboor, random_mock):
         size=(10, 10), initial_assets=0, initial_individuals=0, initial_populations=0
     )
     site = AssetSite()
-    site.append(Asset(AssetType.TYPE0))
+    site.append(Asset(AssetType.EDIBLE))
     world.site_positions[point1] = site
     world._regenerate_assets()
     assert len(world.site_positions[point2]) == 0
@@ -263,10 +265,10 @@ def test_regenerate_assets_fail_because_crowded(mock_random_neighboor, random_mo
     world = World(
         size=(10, 10), initial_assets=0, initial_individuals=0, initial_populations=0
     )
-    world.site_positions[point1].append(Asset(AssetType.TYPE0))
+    world.site_positions[point1].append(Asset(AssetType.EDIBLE))
 
     for _ in range(ASSET_MAX_FOR_TYPE_IN_POINT):
-        world.site_positions[point2].append(Asset(AssetType.TYPE0))
+        world.site_positions[point2].append(Asset(AssetType.EDIBLE))
 
     world._regenerate_assets()
 

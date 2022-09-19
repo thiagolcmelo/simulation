@@ -69,13 +69,13 @@ def test_solve_duel():
     individual2.influence = 20.0
     individual3.influence = 30.0
 
-    individual1.preferences[AssetType.TYPE0] = 0.9
-    individual2.preferences[AssetType.TYPE0] = 0.9
-    individual3.preferences[AssetType.TYPE0] = 0.9
+    individual1.preferences[AssetType.EDIBLE] = 0.9
+    individual2.preferences[AssetType.EDIBLE] = 0.9
+    individual3.preferences[AssetType.EDIBLE] = 0.9
 
-    individual1.grant_asset(Asset(AssetType.TYPE0))
-    individual2.grant_asset(Asset(AssetType.TYPE0))
-    individual3.grant_asset(Asset(AssetType.TYPE0))
+    individual1.grant_asset(Asset(AssetType.EDIBLE))
+    individual2.grant_asset(Asset(AssetType.EDIBLE))
+    individual3.grant_asset(Asset(AssetType.EDIBLE))
 
     # 2 takes from 1
     solve_duel(individual1, individual2)
@@ -102,9 +102,9 @@ def test_solve_duel():
 def test_harvest_by_influence(random_mock):
     random_mock.return_value = 0.0
     individual1, individual2, individual3 = Individual.get_individuals(3)
-    individual1.preferences[AssetType.TYPE0] = 0.9
-    individual2.preferences[AssetType.TYPE0] = 0.9
-    individual3.preferences[AssetType.TYPE0] = 0.9
+    individual1.preferences[AssetType.EDIBLE] = 0.9
+    individual2.preferences[AssetType.EDIBLE] = 0.9
+    individual3.preferences[AssetType.EDIBLE] = 0.9
 
     individuals = [individual1, individual2, individual3]
 
@@ -112,7 +112,7 @@ def test_harvest_by_influence(random_mock):
     individual2.influence = 20.0
     individual3.influence = 30.0
 
-    assets = [Asset(AssetType.TYPE0), Asset(AssetType.TYPE0)]
+    assets = Asset.get_edible(2)
     site = AssetSite()
     site.extend(assets)
 

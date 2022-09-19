@@ -103,13 +103,13 @@ def test_revoke_success():
 
 def test_revoke_fail():
     individual = Individual.make_from_atoms()
-    asset_old = Asset(AssetType.TYPE0)
+    asset_old = Asset(AssetType.EDIBLE)
     individual.grant_asset(asset_old)
     assert asset_old in individual.assets
     assert len(individual.assets) == 1
 
     with pytest.raises(RuntimeError):
-        _ = individual.revoke(AssetType.TYPE1)
+        _ = individual.revoke(AssetType.NON_GROWABLE)
 
     assert asset_old in individual.assets
     assert len(individual.assets) == 1
@@ -159,7 +159,7 @@ def test_get_old(random_mock, age, starving_days, has_food, estimate, units, is_
     individual.age = age
     individual.starving_days = starving_days
     if has_food:
-        individual.grant_asset(Asset(AssetType.TYPE0))
+        individual.grant_asset(Asset(AssetType.EDIBLE))
     assert individual.get_old(units) == is_alive
 
 
