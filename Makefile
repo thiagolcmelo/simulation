@@ -2,6 +2,6 @@
 
 test:
 	black .
-	coverage run -m pytest
-	coverage report -m
+	PYTHONPATH=./src coverage run -m pytest
+	PYTHONPATH=./src coverage report -m
 .PHONY:test
