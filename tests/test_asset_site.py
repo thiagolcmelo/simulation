@@ -1,5 +1,4 @@
 from collections import defaultdict
-import pytest
 
 from asset import Asset
 from asset_site import AssetSite

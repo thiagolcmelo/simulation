@@ -2,7 +2,7 @@
 
 This is a simple simulation of a world with individuals competing for assets.
 
-The world is initialized with some assets spread around and some individuals packed in a few population clusters.
+The world is initialized with some assets spread around and some individuals clustered in a few population clusters.
 
 The individuals walk and collect assets according to their preferences.
 
@@ -15,6 +15,9 @@ It is possible to define some aspects of the world in the file `src/constants.py
 The following snippet gives an example of how to operate and interact with this world:
 
 ```python
+from world_helper import Point, natural_solver
+from world import World
+
 w, h = 10, 10
 world = World(
     size=(w, h), initial_assets=50, initial_individuals=20, initial_populations=3
@@ -62,7 +65,7 @@ The output of the snippet above will be something similar to:
 
 ## Development
 
-The idea is to improve the world over time, this is just a pessimistic view of a worls with limited options.
+The idea is to improve the world over time. This is just a pessimistic view of a world with limited options.
 
 Some characteristics probably seem controvertial, but it tries to capture some evil aspects of the world.
 

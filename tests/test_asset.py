@@ -1,5 +1,3 @@
-import pytest
-
 from asset import Asset, ASSET_TYPES, AssetNature, AssetType
 
 

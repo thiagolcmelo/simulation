@@ -1,10 +1,9 @@
 from math import ceil, log10
-from typing import Counter
+from collections import Counter
 from unittest.mock import patch
 
 import pytest
 
-import individual
 from asset import Asset, ASSET_NUM, ASSET_TYPES, AssetType
 from asset_site import AssetSite
 from constants import *
