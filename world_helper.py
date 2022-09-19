@@ -49,17 +49,25 @@ def harvest_by_influence(individuals: List[Individual], assets: AssetSite) -> As
     return assets
 
 
+def solve_interaction_naturally(
+    left: Individual, right: Individual
+) -> List[Individual]:
+    final_individuals = []
+    if random() < INDIVIDUAL_REPRODUCTION_PROBABILITY:
+        final_individuals.extend(left.reproduce_with(right))
+    elif random() < INDIVIDUAL_ASSASSINATION_PROBABILITY:
+        final_individuals.extend(left.fight(right))
+    else:
+        solve_duel(left, right)
+        final_individuals.extend([left, right])
+    return final_individuals
+
+
 def solve_naturally(conflict: Conflict) -> Conflict:
     conflict.assets = harvest_by_influence(conflict.individuals, conflict.assets)
     final_individuals = []
     for left, right in zip(conflict.individuals[::2], conflict.individuals[1::2]):
-        if random() < INDIVIDUAL_REPRODUCTION_PROBABILITY:
-            final_individuals.extend(left.reproduce_with(right))
-        elif random() < INDIVIDUAL_ASSASSINATION_PROBABILITY:
-            final_individuals.extend(left.fight(right))
-        else:
-            solve_duel(left, right)
-            final_individuals.extend([left, right])
+        final_individuals.extend(solve_interaction_naturally(left, right))
     conflict.individuals = final_individuals
     return conflict
 

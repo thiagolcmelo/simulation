@@ -11,6 +11,8 @@ from world_helper import (
     harvest_by_influence,
     natural_solver,
     solve_duel,
+    solve_interaction_naturally,
+    solve_naturally,
     take,
 )
 
@@ -140,3 +142,66 @@ def test_natural_solver(solve_naturally_mock):
 
     natural_solver([conclict1, conclict2])
     solve_naturally_mock.assert_called()
+
+
+@patch("world_helper.solve_interaction_naturally")
+def test_solve_naturally(solve_interaction_naturally_mock):
+    individuals = Individual.get_individuals(4)
+    for individual in individuals:
+        individual.grant_many_assets(Asset.get_assets(5))
+    point = Point(0, 0)
+    site = AssetSite()
+    site.extend(Asset.get_assets(10))
+    conclict = Conflict(point, individuals, site)
+    conclict = solve_naturally(conclict)
+    solve_interaction_naturally_mock.assert_called()
+
+
+@patch("world_helper.random")
+def test_solve_interaction_naturally_reproduction(random_mock):
+    random_mock.side_effect = [
+        0.0,
+    ]
+    individual1, individual2 = Individual.get_individuals(2)
+    individual1.grant_many_assets(Asset.get_assets(5))
+    individual2.grant_many_assets(Asset.get_assets(5))
+    individuals = solve_interaction_naturally(individual1, individual2)
+    assert len(individuals) == 3
+    assert (
+        len(individuals[0].assets)
+        + len(individuals[1].assets)
+        + len(individuals[2].assets)
+        == 10
+    )
+
+
+@patch("world_helper.random")
+def test_solve_interaction_naturally_assassination(random_mock):
+    random_mock.side_effect = [
+        1.0,
+        0.0,
+    ]
+    individual1, individual2 = Individual.get_individuals(2)
+    individual1.grant_many_assets(Asset.get_assets(5))
+    individual2.grant_many_assets(Asset.get_assets(5))
+    individual1.influence = 10.0
+    individual2.influence = 20.0
+    individuals = solve_interaction_naturally(individual1, individual2)
+    assert len(individuals) == 1
+    assert len(individuals[0].assets) == 10
+
+
+@patch("world_helper.random")
+def test_solve_interaction_naturally_duel(random_mock):
+    random_mock.side_effect = [
+        1.0,
+        1.0,
+    ]
+    individual1, individual2 = Individual.get_individuals(2)
+    individual1.grant_many_assets(Asset.get_assets(5))
+    individual2.grant_many_assets(Asset.get_assets(5))
+    individual1.influence = 10.0
+    individual2.influence = 20.0
+    individuals = solve_interaction_naturally(individual1, individual2)
+    assert len(individuals) == 2
+    assert len(individuals[0].assets) + len(individuals[1].assets) == 10
