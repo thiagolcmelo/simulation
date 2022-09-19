@@ -28,6 +28,9 @@ class AssetSite:
     def total_of_type(self, asset_type: AssetType) -> int:
         return self._total_of_type[asset_type]
 
+    def __contains__(self, asset: Asset) -> bool:
+        return self._total_of_type[asset.asset_type] > 0
+
     def __len__(self) -> int:
         return self.total_assets
 

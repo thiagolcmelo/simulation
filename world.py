@@ -10,6 +10,7 @@ from conflict import Conflict
 from constants import (
     ASSET_REPRODUCTION_PROBABILITY,
     ASSET_MAX_FOR_TYPE_IN_POINT,
+    INDIVIDUAL_MAX_AGE,
 )
 from individual import Individual
 from point import Point
@@ -42,7 +43,6 @@ class World:
         total_population = len(all_individuals)
         if total_population == 0:
             avg_happines = 0
-            # avg_assets = 0
         else:
             avg_happines = (
                 sum([i.happiness for i in all_individuals]) / total_population
@@ -51,6 +51,15 @@ class World:
             "total_population": total_population,
             "avg_happines": avg_happines,
         }
+
+    @property
+    def total_assets(self) -> int:
+        total = 0
+        for site in self.site_positions.values():
+            total += len(site)
+        for individual in self.get_all_individuals():
+            total += len(individual.assets)
+        return total
 
     def get_conflicts(self) -> List[Conflict]:
         conflicts = []
@@ -116,14 +125,14 @@ class World:
     def _regenerate_assets(self) -> None:
         assets = self.get_assets_free_and_growable()
         for point, asset in assets:
-            total_of_kind_in_point = self.site_positions[point].total_of_type(
+            neighbor = self.get_random_neighboor(point)
+            total_of_kind_in_point = self.site_positions[neighbor].total_of_type(
                 asset.asset_type
             )
             if (
-                total_of_kind_in_point <= ASSET_MAX_FOR_TYPE_IN_POINT
+                total_of_kind_in_point < ASSET_MAX_FOR_TYPE_IN_POINT
                 and random() < ASSET_REPRODUCTION_PROBABILITY
             ):
-                neighbor = self.get_random_neighboor(point)
                 self.site_positions[neighbor].append(Asset(asset.asset_type))
 
     def _age_individuals(self) -> None:
@@ -141,10 +150,17 @@ class World:
     def _update_influences(self) -> None:
         all_individuals = self.get_all_individuals()
         all_bases = Individual.avg_dna_counts(all_individuals)
+        world_wealth = float(self.total_assets)
         for individual in all_individuals:
             distance = individual.dna_distance(all_bases)
-            if distance > 0:
-                individual.influence = 1.0 / distance
+            if distance > 0 and world_wealth > 0:
+                individual.influence = (
+                    (1.0 / distance)
+                    * float(individual.age)
+                    / float(INDIVIDUAL_MAX_AGE)
+                    * float(len(individual.assets))
+                    / world_wealth
+                )
             else:
                 individual.influence = 1.0
 
