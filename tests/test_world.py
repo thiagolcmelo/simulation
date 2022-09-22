@@ -454,3 +454,4 @@ def test_indicators_zero_population(happiness_mock):
 
     assert indicators.get("total_population") == 0
     assert indicators.get("avg_happines") == pytest.approx(avg_happiness)
+    assert indicators.get("avg_age") == pytest.approx(0)

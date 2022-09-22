@@ -43,13 +43,17 @@ class World:
         total_population = len(all_individuals)
         if total_population == 0:
             avg_happines = 0
+            avg_age = 0.0
         else:
-            avg_happines = (
-                sum([i.happiness for i in all_individuals]) / total_population
+            happinesses, ages = list(
+                map(list, zip(*[(i.happiness, i.age) for i in all_individuals]))
             )
+            avg_happines = sum(happinesses) / float(total_population)
+            avg_age = sum(ages) / float(total_population)
         return {
             "total_population": total_population,
             "avg_happines": avg_happines,
+            "avg_age": avg_age,
         }
 
     @property
