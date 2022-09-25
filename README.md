@@ -39,28 +39,37 @@ The `natural_solver` is just a toy example of conflicts resolution, but the idea
 The output of the snippet above will be something similar to:
 
 ```json
-{"total_population": 20, "avg_happines": 0.0}
-{"total_population": 24, "avg_happines": 0.05277777777777778}
-{"total_population": 27, "avg_happines": 0.07407407407407408}
-{"total_population": 23, "avg_happines": 0.1381642512077295}
+{"total_population": 20, "avg_happines": 0.0, "avg_age": 0.0}
+{"total_population": 23, "avg_happines": 0.09999999999999999, "avg_age": 0.0}
+{"total_population": 20, "avg_happines": 0.32, "avg_age": 1.0}
 ...
-{"total_population": 7, "avg_happines": 779.2159127671437}
-{"total_population": 7, "avg_happines": 802.0195199301278}
-{"total_population": 8, "avg_happines": 710.0357093007493}
+{"total_population": 47, "avg_happines": 53.65175638257239, "avg_age": 13.914893617021276}
+{"total_population": 51, "avg_happines": 48.41396193030974, "avg_age": 12.882352941176471}
+{"total_population": 54, "avg_happines": 45.14741602842799, "avg_age": 12.5}
 ...
-{"total_population": 31, "avg_happines": 167.8370517960694}
-{"total_population": 35, "avg_happines": 141.21890176688692}
-{"total_population": 39, "avg_happines": 126.38987849316254}
+{"total_population": 133, "avg_happines": 7.071315986722207, "avg_age": 5.962406015037594}
+{"total_population": 121, "avg_happines": 7.161083955959382, "avg_age": 6.363636363636363}
+{"total_population": 119, "avg_happines": 6.576438651600998, "avg_age": 5.80672268907563}
 ...
-{"total_population": 91, "avg_happines": 57.35887466977378}
-{"total_population": 90, "avg_happines": 50.800611717024175}
-{"total_population": 97, "avg_happines": 43.65775427241246}
+{"total_population": 26, "avg_happines": 14.197678412774604, "avg_age": 8.692307692307692}
+{"total_population": 24, "avg_happines": 15.1986265509115, "avg_age": 9.083333333333334}
+{"total_population": 24, "avg_happines": 15.870354204153466, "avg_age": 9.083333333333334}
 ...
-{"total_population": 1, "avg_happines": 158.46654028492586}
-{"total_population": 1, "avg_happines": 177.39008555081838}
-{"total_population": 1, "avg_happines": 182.2202907304484}
+{"total_population": 81, "avg_happines": 18.247895064917483, "avg_age": 10.037037037037036}
+{"total_population": 86, "avg_happines": 16.63649735222988, "avg_age": 9.0}
+{"total_population": 90, "avg_happines": 13.751155200171326, "avg_age": 7.955555555555556}
 ...
-{"total_population": 0, "avg_happines": 0}
+{"total_population": 5, "avg_happines": 94.5743881361025, "avg_age": 26.0}
+{"total_population": 5, "avg_happines": 98.0896854092503, "avg_age": 27.0}
+{"total_population": 6, "avg_happines": 87.5900041544712, "avg_age": 23.333333333333332}
+...
+{"total_population": 100, "avg_happines": 11.239575909290325, "avg_age": 8.18}
+{"total_population": 92, "avg_happines": 10.609720303753932, "avg_age": 8.054347826086957}
+{"total_population": 100, "avg_happines": 9.279801999603398, "avg_age": 7.74}
+...
+{"total_population": 1, "avg_happines": 452.94695879246785, "avg_age": 89.0}
+{"total_population": 1, "avg_happines": 452.94695879246785, "avg_age": 90.0}
+{"total_population": 0, "avg_happines": 0, "avg_age": 0.0}
 ```
 
 ## Development
